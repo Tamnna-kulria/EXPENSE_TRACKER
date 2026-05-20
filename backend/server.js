@@ -10,22 +10,15 @@ const dashboardRoutes = require("./routes/dashboardRoutes");
 
 
 
-
 const app = express();
 
 app.use(
-  cors({
-    origin: [
-      "http://localhost:5173",
-      "https://expense-tracker-eight-beta-72.vercel.app",
-    ],
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
-  })
+    cors({
+        origin: process.env.CLIENT_URL ||"*",
+        methods:["GET","POST","PUT","DELETE"],
+        allowedHeaders:["Content-Type","Authorization"],
+    })
 );
-
-app.use(express.json());
 
 app.use(express.json());
 
