@@ -1,12 +1,12 @@
 import React from "react";
 import {
+  LineChart,
+  Line,
   XAxis,
   YAxis,
+  CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  CartesianGrid,
-  Area,
-  AreaChart,
 } from "recharts";
 
 const CustomLineChart = ({ data = [] }) => {

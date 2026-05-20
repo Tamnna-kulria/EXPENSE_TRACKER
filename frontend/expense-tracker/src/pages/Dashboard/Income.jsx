@@ -15,21 +15,35 @@ const Income = () => {
   const [openDeleteAlert, setOpenDeleteAlert] = useState({ show: false, data: null });
 
   // Fetch all income
-  const fetchIncomeDetails = async () => {
-    try {
-      const response = await axiosInstance.get(API_PATHS.INCOME.GET_ALL_INCOME);
-      console.log("Income API response:", response.data);
+ const fetchIncomeDetails = async () => {
+  try {
+    const response = await axiosInstance.get(
+      API_PATHS.INCOME.GET_ALL_INCOME
+    );
 
-      if (response.data?.recentTransactions && Array.isArray(response.data.recentTransactions)) {
-        setIncomeData(response.data.recentTransactions);
-      } else {
-        setIncomeData([]);
-      }
-    } catch (error) {
-      console.error("Something went wrong", error);
-      setIncomeData([]);
+    console.log("Income API response:", response.data);
+
+    let incomeArray = [];
+
+    // if API returns array directly
+    if (Array.isArray(response.data)) {
+      incomeArray = response.data;
     }
-  };
+
+    // if API returns single object
+    else if (response.data && typeof response.data === "object") {
+      incomeArray = [response.data];
+    }
+
+    console.log("Final Income Array:", incomeArray);
+
+    setIncomeData(incomeArray);
+
+  } catch (error) {
+    console.error("Something went wrong", error);
+    setIncomeData([]);
+  }
+};
 
   // Add income
   const handleAddIncome = async (income) => {

@@ -16,21 +16,24 @@ const Expense = () => {
   const [openDeleteAlert, setOpenDeleteAlert] = useState({ show: false, data: null });
 
   // Fetch all expenses
-  const fetchExpenseDetails = async () => {
-    try {
-      const response = await axiosInstance.get(API_PATHS.EXPENSE.GET_ALL_EXPENSE);
-      console.log("Expense API response:", response.data);
+ const fetchExpenseDetails = async () => {
+  try {
+    const response = await axiosInstance.get(
+      API_PATHS.EXPENSE.GET_ALL_EXPENSE
+    );
 
-      if (response.data?.recentTransactions && Array.isArray(response.data.recentTransactions)) {
-        setExpenseData(response.data.recentTransactions);
-      } else {
-        setExpenseData([]);
-      }
-    } catch (error) {
-      console.error("Something went wrong", error);
+    console.log("Expense API response:", response.data);
+
+    if (Array.isArray(response.data)) {
+      setExpenseData(response.data);
+    } else {
       setExpenseData([]);
     }
-  };
+  } catch (error) {
+    console.error("Something went wrong", error);
+    setExpenseData([]);
+  }
+};
 
   // Add expense
 const handleAddExpense = async (expense) => {
@@ -59,44 +62,63 @@ const handleAddExpense = async (expense) => {
 };
 
 
-  // Delete expense
-  const handleDeleteExpense = async (id) => {
-    try {
-      await axiosInstance.delete(`${API_PATHS.EXPENSE.DELETE_EXPENSE}/${id}`);
-      toast.success("Expense deleted successfully");
-      fetchExpenseDetails();
-    } catch (error) {
-      console.error("Error deleting expense:", error);
-      toast.error("Failed to delete expense.");
-    }
-  };
-
-  // Download CSV
-  const handleDownloadExpenseDetails = () => {
-    if (!expenseData.length) {
-      alert("No expense data to download!");
-      return;
-    }
-
-    const csvHeader = "Source,Amount,Date\n";
-    const csvRows = expenseData.map((expense) =>
-      `${expense.source || "N/A"},${expense.amount},${new Date(expense.date).toLocaleDateString()}`
+ 
+ // Delete expense
+const handleDeleteExpense = async (id) => {
+  try {
+    await axiosInstance.delete(
+      API_PATHS.EXPENSE.DELETE_EXPENSE(id)
     );
 
-    const csvContent = csvHeader + csvRows.join("\n");
-    const blob = new Blob([csvContent], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
+    toast.success("Expense deleted successfully");
 
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "Expense_Details.csv";
-    link.click();
-    URL.revokeObjectURL(url);
-  };
+    setOpenDeleteAlert({ show: false, data: null });
 
-  useEffect(() => {
     fetchExpenseDetails();
-  }, []);
+  } catch (error) {
+    console.error("Error deleting expense:", error);
+    toast.error("Failed to delete expense.");
+  }
+};
+  // Download CSV
+    const handleDownloadExpenseDetails = () => {
+      if (!expenseData.length) {
+        alert("No expense data to download!");
+        return;
+      }
+
+      const csvHeader = "Category,Amount,Date\n";
+
+      const csvRows = expenseData.map((expense) =>
+        `${expense.category || "N/A"},${expense.amount},${new Date(
+          expense.date
+        ).toLocaleDateString()}`
+      );
+
+      const csvContent = csvHeader + csvRows.join("\n");
+
+      const blob = new Blob([csvContent], {
+        type: "text/csv",
+      });
+
+      const url = URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+
+      link.href = url;
+      link.download = "Expense_Details.csv";
+
+      document.body.appendChild(link);
+
+      link.click();
+
+      document.body.removeChild(link);
+
+      URL.revokeObjectURL(url);
+    };
+    useEffect(() => {
+  fetchExpenseDetails();
+}, []);
 
   return (
     <DashboardLayout activeMenu="Expense">
